@@ -19,7 +19,7 @@ describe("Hello World worker", () => {
 		const response = await worker.fetch(request, env, ctx);
 		// Wait for all `Promise`s passed to `ctx.waitUntil()` to settle before running test assertions
 		await waitOnExecutionContext(ctx);
-		expect(await response.text()).toMatchInlineSnapshot(`"Hello World!"`);
+		expect(await response.text()).toMatchInlineSnapshot(`"Hello World! This is the new change"`);
 	});
 
 	it("responds with Hello World! (integration style)", async () => {
