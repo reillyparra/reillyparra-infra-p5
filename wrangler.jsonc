@@ -11,12 +11,17 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
-
 	"d1_databases": [
 		{
 			"binding": "p6",
 			"database_name": "p6",
-			"database_id": "eb595199-9022-4eac-999e-145f5f95431b"
+			"database_id": "eb595199-9022-4eac-999e-145f5f95431b",
+			"migrations_dir": "migrations"
+		},
+		{
+			"binding": "p6_prod",
+			"database_name": "p6-prod",
+			"database_id": "ff55c355-c41f-4bea-92bf-d6aa9458d180"
 		}
 	]
 	/**

@@ -1,12 +1,15 @@
-name: Worker deploy
+name: CI/CD
+
 on:
   push:
     branches:
       - main
 
 jobs:
-  deploy:
+  build-test:
+    name: Build, Test and Coverage
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -15,16 +18,44 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm   
-      
+          cache: npm
+
       - name: Install dependencies
         run: npm ci
-      
-      #- name: Test unit 
-      #  run: npm test -- --run
 
-      - name: Deploy to Cloudflare Workers
+      - name: Build
+        run: npm run build
+
+      - name: Test with coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+  deploy-production:
+    name: Deploy Production
+    needs: build-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy to Cloudflare Production
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.API_key }}
           accountId: ${{ secrets.ACCOUNT_ID }}
+          command: deploy --config wrangler.prod.jsonc

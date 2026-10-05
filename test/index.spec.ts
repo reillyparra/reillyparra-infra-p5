@@ -1,29 +1,54 @@
-import {
-	env,
-	createExecutionContext,
-	waitOnExecutionContext,
-	SELF,
-} from "cloudflare:test";
+import { env, SELF } from "cloudflare:test";
 import { describe, it, expect } from "vitest";
-import worker from "../src/index";
-
-// For now, you'll need to do something like this to get a correctly-typed
-// `Request` to pass to `worker.fetch()`.
-const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
+import worker from "../src";
 
 describe("Hello World worker", () => {
-	it("responds with Hello World! (unit style)", async () => {
-		const request = new IncomingRequest("http://example.com");
-		// Create an empty context to pass to `worker.fetch()`.
-		const ctx = createExecutionContext();
-		const response = await worker.fetch(request, env, ctx);
-		// Wait for all `Promise`s passed to `ctx.waitUntil()` to settle before running test assertions
-		await waitOnExecutionContext(ctx);
-		expect(await response.text()).toMatchInlineSnapshot(`"Hello World! This is the new change"`);
-	});
+  it("responds with Hello World! (unit style)", async () => {
+    const request = new Request("https://example.com");
+    const response = await worker.fetch(request, env, {} as ExecutionContext);
 
-	it("responds with Hello World! (integration style)", async () => {
-		const response = await SELF.fetch("https://example.com");
-		expect(await response.text()).toMatchInlineSnapshot(`"Hello World! This is the new change"`);
-	});
+    expect(response.status).toBe(200);
+
+    const data = await response.json();
+
+    expect(data).toEqual({
+      message: "Hello World 3",
+      dbData: [
+        {
+          id: 1,
+          name: "Reilly Parra",
+          email: "reillypebe010705@gmail.com",
+        },
+        {
+          id: 2,
+          name: "Alejandro Barroso",
+          email: "alejandro@gmail.com",
+        },
+      ],
+    });
+  });
+
+  it("responds with Hello World! (integration style)", async () => {
+    const response = await SELF.fetch("https://example.com");
+
+    expect(response.status).toBe(200);
+
+    const data = await response.json();
+
+    expect(data).toEqual({
+      message: "Hello World 3",
+      dbData: [
+        {
+          id: 1,
+          name: "Reilly Parra",
+          email: "reillypebe010705@gmail.com",
+        },
+        {
+          id: 2,
+          name: "Alejandro Barroso",
+          email: "alejandro@gmail.com",
+        },
+      ],
+    });
+  });
 });
